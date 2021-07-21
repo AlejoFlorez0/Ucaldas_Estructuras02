@@ -1,27 +1,21 @@
 import os
 
-from Models.Cave import Cave
-from Models.Nodo import Nodo
-
 class Tree:
 
     # Constructor ([listaNodosIniciales], [raiz])
     def __init__(self):
-        self.Autos = []
+        self.Caves = []
         self.raiz = None
         self.peso = 0
         self.altura = 0
-        self.loadTree()
+        self.loadData()
 
     #Cargará los peajes existentes
-    def loadTree(self):
+    def loadData(self):
         if os.path.exists("File/Cave"):
             contentPath = os.listdir("File/Cave")
             for file in contentPath:
-                instanceToll = Cave()
-                instanceToll.loadFromFile(file)
-
-        #self.imprimir_pre_order(self.raiz)
+                self.Caves.append(file)
 
         return True
 
