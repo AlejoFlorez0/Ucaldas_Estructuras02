@@ -4,6 +4,7 @@ class Cave:
         self.name = name
         self.links = {}
         self.supplies =[]
+        self.costeDijsktra=[float('inf'), None, False]
 
     def AddLinks(self, destination, distance,state):
         distances=[]
@@ -12,13 +13,25 @@ class Cave:
         distances.append({"Distancia":distance,"Estado":state})
         self.links[destination]=distances
 
+    def GetCosteValue(self):
+        return self.costeDijsktra[0]
+
+    def GetCosteCave(self):
+        return self.costeDijsktra[1]
+
+    def GetCosteStatus(self):
+        return self.costeDijsktra[2]
+
+    def SetCosteDijsktra(self,value,cave,state):
+        self.costeDijsktra=[value,cave,state]
+
     def GetName(self):
         return self.name
 
     def GetLink(self, name):
         for x in self.links:
             if name == x.GetName():
-
+                print(x.GetName())
                 return x
             return None
 
@@ -43,6 +56,26 @@ class Cave:
                 else:
                     x["Estado"] = False
 
+    def GetStatus(self,destination):
+        if len(self.links[destination])==1:
+            for x in self.links[destination]:
+                return x["Estado"]
+        m = int(input("Distancia del Enlace: "))
+        ListLinks = self.links[destination]
+        for x in ListLinks:
+            if x["Distancia"] == m:
+                return x["Estado"]
+
+    def GetWeight(self,destination):
+        if len(self.links[destination])==1:
+            for x in self.links[destination]:
+                return x["Distancia"]
+        m = int(input("Distancia del Enlace: "))
+        ListLinks = self.links[destination]
+        for x in ListLinks:
+            if x["Distancia"] == m:
+                return x["Distancia"]
+
     def ChangeLinkDirecction(self, destination):
         m = int(input("Distancia del enlace que desea cambiar: "))
         ListLinks = self.links[destination]
@@ -58,13 +91,31 @@ class Cave:
                 return None
 
 
-# Las funciones del grafo
-# Montaña
 class Graph:
     def __init__(self):
         self.Caves = {}
 
-    # agregar Cueva
+    def pozos(self, lista):
+        for x in self.Caves:
+            b = True
+            name = x.GetName()
+            if x.links == {}:
+                for y in self.Caves:
+                    for z in y.links:
+                        for a in y.links[z]:
+                            if z.GetName() == name and a["Estado"]:
+                                b = False
+                if b == True:
+                    lista.append(x)
+        return lista
+
+    def recorrido(self, cueva, lista):
+        for x in cueva.links:
+            if x not in lista:
+                lista.append(x)
+                lista = self.recorrido(x, lista)
+        return lista
+
     def AddCave(self, name):
         c=Cave(name)
         entry=input("Desea colocar un id?: ")
@@ -75,6 +126,12 @@ class Graph:
             self.Caves[c]=None
         return c
 
+    def GetCaves(self):
+        return self.Caves
+
+    def exists(self, name):
+        return name in self.Caves;
+
     def GetCave(self, name):
         for x in self.Caves:
             if name == x.GetName():
@@ -83,9 +140,10 @@ class Graph:
 
     def PrintCaves(self):
         for x in self.Caves:
-            print(f"Nombre de la cueva: {x.GetName()}, Id: {self.Caves[x]}, Enlaces de la cueva: {x.links}")
+            print(f"Nombre de la cueva: {x.GetName()}, Id: {self.Caves[x]}, Enlaces de la cueva: {x.links}, {x}")
+            for y in x.links:
+                print()
 
-    # Obtiene las conecciones salientes y entrantes de una cueva
     def Grade(self):
         name = (input("Ingrese el nombre de la cueva: "))
         s = 0
@@ -100,18 +158,68 @@ class Graph:
         print(f"El número de conexiones salientes de {name}: {s}")
         print(f"El número de conexiones entrantes de {name}: {e}")
 
-    # Cuando una cueva es inaccesible
     def Inna(self, lista):
         for x in self.Caves:
             b = True
             name = x.GetName()
             for y in self.Caves:
                 for z in y.links:
-                    if z.GetName() == name:
-                        b = False
+                    for a in y.links[z]:
+                        if z.GetName() == name and a["Estado"]:
+                           b = False
             if b == True:
                 lista.append(x)
         return lista
+
+    def Dijkstra(self, c_from,c_to,caveOriginal):
+        current_C=self.GetCave(c_from.GetName())
+        if not current_C.GetCosteCave():
+            print(f"Start cave: {current_C.GetName()}")
+            current_C.SetCosteDijsktra(0,current_C,True)
+        print("----------------------------------------------------------------")
+        print("----------- processing each connection of ", current_C.GetName(), " ------------------")
+        for x in current_C.links:
+            print("Before: ", x.GetName(), " [Coste:", x.GetCosteValue(), " - Viene de:", x.GetCosteCave(),"]");
+            weightInfo = current_C.GetWeight(x);
+            if (not x.GetCosteCave()or (x.GetCosteValue() > (current_C.GetCosteValue() + weightInfo))) and current_C.GetStatus(x) :
+                x.SetCosteDijsktra((current_C.GetCosteValue() + weightInfo), current_C,False);
+                print("Later: ", x.GetName(), " [Coste:", x.GetCosteValue(), " - Viene de:", x.GetCosteCave().GetName(), "]");
+            if not current_C.GetStatus(x):
+                current_C=None
+            else:
+                current_C.costeDijsktra[2]=True
+                current_C = self.GetMinCaveCosteValue()
+        if (current_C):
+            print("-----------------------------");
+            print("new current_C: ", current_C.GetName())
+            if (current_C.GetName() == c_to.GetName()):
+                pathway = self.PrintRoute(current_C, caveOriginal);
+                print("La ruta con menor coste desde la cueva:", caveOriginal.GetName(), " hasta la cueva:", c_to.GetName(), " es: ", pathway,
+                      ", con coste de: ", current_C.GetCosteValue());
+            else:
+                self.Dijkstra(current_C, c_to, caveOriginal)
+        else:
+            print("Sin ruta desde la cueva", caveOriginal.GetName(), " hasta la cueva:", c_to.GetName());
+
+    def GetMinCaveCosteValue(self):
+        minValue = float('inf');
+        minCave = None;
+        for x in self.Caves:
+            #print("--------------------- Status of ",x, x.GetName(), ": ", x.GetCosteStatus(), " with value: ", x.GetCosteValue())
+            if (x.GetCosteValue() < minValue and not x.GetCosteStatus()):
+                minValue = x.GetCosteValue();
+                minCave = x;
+        return minCave;
+
+    def PrintRoute(self, current_C, originalFrom, pathway=''):
+        if (current_C.GetName() == originalFrom.GetName()):
+            return (current_C.GetName() + ' - ' + pathway);
+        else:
+            if (pathway == ''):
+                pathway = current_C.GetName();
+            else:
+                pathway = current_C.GetName() + " - " + pathway;
+            return self.PrintRoute(current_C.GetCosteCave(), originalFrom, pathway);
 
 
 g= Graph()
@@ -154,8 +262,7 @@ while m==False:
         if cave:
             cave2=cave.GetLink(n2)
             if cave2:
-                cave.ChangeLinkDirecction(cave2)
-                #cave.ChangeStatusLinks(cave2)
+                cave.ChangeStatusLinks(cave2)
     elif n==5:
         lista = g.Inna([])
         print("Las cuevas que son innacesibles son: ")
@@ -176,7 +283,53 @@ while m==False:
         g.PrintCaves()
     elif n==8:
         g.Grade()
+    elif n==9:
+        n1= input("Nombre de la cueva de Origen de la carretera")
+        cave = g.GetCave(n1)
+        n2 = input("Nombre de la cueva destino de la carretera")
+        if cave:
+            cave2=cave.GetLink(n2)
+            if cave2:
+                n=cave.GetStatus(cave2)
+                print(n)
+    elif n==10:
+        n1 = input("Nombre de la cueva de Origen de la carretera")
+        cave = g.GetCave(n1)
+        n2 = input("Nombre de la cueva destino de la carretera")
+        if cave:
+            cave2 = g.GetCave(n2)
+            print(cave2)
+            if cave2:
+                print("hello")
+                g.Dijkstra(cave,cave2,cave)
+
+    elif n == 11:
+        lista = g.pozos([])
+        for x in lista:
+            print(x.GetName())
+
+    elif n == 11:
+        name = input("Ingrese nombre de la cueva: ")
+
+        lista = []
+        lista2 = []
+        for x in g.Caves:
+            if x.GetName() == name:
+                lista.append(x)
+                lista2.append(x)
+                lista = g.recorridoProfundidad(x, lista)
+                lista2 = g.recorridoAnchura(x, lista2, x)
+
+        print("Recorrido en profundidad:  \n")
+        for y in lista:
+            print(y.GetName())
+
+        print("Recorrido en anchura:  \n")
+        
 
         
     elif n==100:
         m=True
+
+
+
