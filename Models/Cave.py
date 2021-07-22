@@ -81,7 +81,7 @@ class Cave:
     # Guardará un archivo del json
     def update(self):
 
-        jsonFile = {'id': self.name, 'name': self.name,'xPosition': self.xPosition,'yPosition': self.yPosition}
+        jsonFile = {'id': self.name, 'name': self.name,'xPosition': self.xPosition,'yPosition': self.yPosition, 'links' : self.links}
 
         with open(self.cavePath+self.name+'.json','w') as json_file:
             json.dump(jsonFile, json_file)

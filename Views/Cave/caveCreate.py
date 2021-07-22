@@ -119,6 +119,19 @@ class caveCreate:
         self.yPosition.place(relx=0.5,rely=0.3,relwidth=0.5,relheight=0.1)
         self.entryYPosition.set(self.Cave.getYPosition())
 
+        linksLabel = Label(self.windows ,text = "Enlaces",borderwidth=2, relief="groove")
+        linksLabel.config(bg="#5bc0de", fg="white", font=("Comic Sans", 12))
+        linksLabel.place(relx=0,rely=0.4,relwidth=0.5,relheight=0.1)
+
+        self.links = OptionMenu(self.windows,self.value_inside,*self.Tree.Caves)
+        self.links.place(relx=0.5,rely=0.4,relwidth=0.5,relheight=0.1)
+
+        btnAddLink = Button(self.windows,text="Agregar Enlace",relief="groove",cursor="hand2",command=self.__addLink)
+        btnAddLink.config(bg="#5cb85c", fg="white", font=("Comic Sans", 18))
+        btnAddLink.place(relx=0,rely=0.5, relwidth=1, relheight=0.1)
+
+        self.containerList.place(relwidth=1,relheight=0.3,rely=0.6,relx=0)
+
         btnUpdate = Button(self.windows,text="Actualizar",relief="groove",cursor="hand2",command=self.__update)
         btnUpdate.config(bg="#5cb85c", fg="white", font=("Comic Sans", 18))
         btnUpdate.place(relx=0.35,rely=0.8, relwidth=0.3, relheight=0.1)
@@ -148,6 +161,9 @@ class caveCreate:
 
     # Actualizará una instancia de la clase Cave
     def __update(self):
-        
+        self.Cave.setName(self.nameValue.get())
+        self.Cave.setXPosition(self.xPosition.get())
+        self.Cave.setYPosition(self.yPosition.get())
+        self.Cave.setLinks(self.selectedLinks)
         if self.Cave.update():
             self.windows.destroy()
