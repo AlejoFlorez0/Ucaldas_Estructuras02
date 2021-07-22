@@ -1,3 +1,4 @@
+import json
 import tkinter
 
 from tkinter import *
@@ -21,6 +22,9 @@ class caveCreate:
         # Define la posición en Y
         self.yPosition = Entry(self.windows)
 
+        # Define el peso
+        self.peso = Entry(self.windows)
+
         #Valor de la lista de json
         self.value_inside = tkinter.StringVar(self.windows)
         self.value_inside.set("Selecciona una opción")
@@ -32,6 +36,8 @@ class caveCreate:
         self.links = OptionMenu(self.windows,self.value_inside,*self.Tree.Caves)
 
         self.containerList = Frame(self.windows)
+
+        self.valueCheck = BooleanVar()
 
         if CaveId is not None:
             self.entryNameValue = tkinter.StringVar()
@@ -81,6 +87,13 @@ class caveCreate:
         btnAddLink.place(relx=0,rely=0.5, relwidth=1, relheight=0.1)
 
         self.containerList.place(relwidth=1,relheight=0.3,rely=0.6,relx=0)
+
+        pesoLabel = Label(self.windows ,text = "Peso",borderwidth=2, relief="groove")
+        pesoLabel.config(bg="#5bc0de", fg="white", font=("Comic Sans", 12))
+        pesoLabel.place(relx=0,rely=0.7,relwidth=0.5,relheight=0.1)
+
+        self.peso = Entry(self.windows,textvariable=self.peso)
+        self.peso.place(relx=0.5,rely=0.7,relwidth=0.5,relheight=0.1)
 
         btnSave = Button(self.windows,text="Guardar",relief="groove",cursor="hand2",command=self.__save)
         btnSave.config(bg="#5cb85c", fg="white", font=("Comic Sans", 18))
@@ -132,10 +145,24 @@ class caveCreate:
 
         self.containerList.place(relwidth=1,relheight=0.3,rely=0.6,relx=0)
 
+        for link in self.Cave.GetLinks(): 
+            data = json.loads(json.dumps(link))
+            self.value_inside.set(data["Cave"])
+            self.__addLink()
+
+        self.value_inside.set("Selecciona una opción")        
+
+        pesoLabel = Label(self.windows ,text = "Peso",borderwidth=2, relief="groove")
+        pesoLabel.config(bg="#5bc0de", fg="white", font=("Comic Sans", 12))
+        pesoLabel.place(relx=0,rely=0.7,relwidth=0.5,relheight=0.1)
+
+        self.peso = Entry(self.windows,textvariable=self.peso)
+        self.peso.place(relx=0.5,rely=0.7,relwidth=0.5,relheight=0.1)
+
         btnUpdate = Button(self.windows,text="Actualizar",relief="groove",cursor="hand2",command=self.__update)
         btnUpdate.config(bg="#5cb85c", fg="white", font=("Comic Sans", 18))
         btnUpdate.place(relx=0.35,rely=0.8, relwidth=0.3, relheight=0.1)
-
+        
         self.windows.mainloop()
 
         return True
@@ -143,8 +170,8 @@ class caveCreate:
     # Agregará el valor seleccionado
     def __addLink(self):
         self.selectedLinks.append(self.value_inside.get())
-        checkbox = Checkbutton(self.containerList, text=self.value_inside.get())
-        checkbox.pack()
+        self.checkbox = Checkbutton(self.containerList, text=self.value_inside.get(),variable=self.valueCheck)
+        self.checkbox.pack()
 
 
     # Creará una instancia de la clase Cave
@@ -154,16 +181,20 @@ class caveCreate:
         instaceCave.setName(self.nameValue.get())
         instaceCave.setXPosition(self.xPosition.get())
         instaceCave.setYPosition(self.yPosition.get())
-        instaceCave.setLinks(self.selectedLinks)
+        instaceCave.setLinks(self.selectedLinks,self.valueCheck.get())
+        instaceCave.setPeso(self.peso.get())
 
         if instaceCave.save():
             self.windows.destroy()
 
     # Actualizará una instancia de la clase Cave
     def __update(self):
+
         self.Cave.setName(self.nameValue.get())
         self.Cave.setXPosition(self.xPosition.get())
         self.Cave.setYPosition(self.yPosition.get())
         self.Cave.setLinks(self.selectedLinks)
+        self.Cave.setPeso(self.peso)
+
         if self.Cave.update():
             self.windows.destroy()

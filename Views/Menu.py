@@ -5,7 +5,7 @@ from tkinter import Frame
 from tkinter import Canvas
 from tkinter.constants import Y
 from Models.Cave import Cave
-from Views.Tree.treeNode import treeNode
+from Views.Cave.send import send
 from Views.Cave.caveCreate import caveCreate
 
 class Menu:
@@ -44,21 +44,32 @@ class Menu:
                 btnCave.config(bg="#0275d8", fg="white", font=("Comic Sans", 18))
                 btnCave.place(relx=instanceCave.getXPosition(),rely=instanceCave.getYPosition(), relwidth=0.1, relheight=0.1)
 
-
         return True
 
     # Mostrará un nuevo
     def show(self):
 
+        self.showTravel()
+
         btnCave = tkinter.Button(self.windows, text="Agregar Cuevas",command=self.__Cave)
         btnCave.config(bg="#0275d8", fg="white", font=("Comic Sans", 18))
         btnCave.place(relx=0.8,rely=0, relwidth=0.2, relheight=0.15)
 
-        #btnTree = tkinter.Button(self.windows, text="Arbol",command=self.__Tree)
-        #btnTree.config(bg="#0275d8", fg="white", font=("Comic Sans", 18))
-        #btnTree.place(relx=0.7,rely=0.25, relwidth=0.25, relheight=0.3)
+        btnTree = tkinter.Button(self.windows, text="Recorrido",command=self.__Tree)
+        btnTree.config(bg="#0275d8", fg="white", font=("Comic Sans", 18))
+        btnTree.place(relx=0.85,rely=0.15, relwidth=0.15, relheight=0.15)
 
         self.windows.mainloop()
+
+
+    def showTravel(self):
+        file = open ("File//Send//send.json", "r")
+        data = json.loads(file.read())
+
+        origin = data["origin"]
+        destination = data["destination"]
+
+        
 
     # Abrirá el formulario de actualización de registros
     def __caveUpdate(self,instanceName):
@@ -74,8 +85,7 @@ class Menu:
 
     # Abrirá el Formulario para el arbol
     def __Tree(self):
-        instanceTreeIndex = treeNode(self.Tree.raiz)
-        self.windows.destroy()
+        instanceTreeIndex = send(self.Tree)
         instanceTreeIndex.show()
 
     # Se crea linea dinamica entre varias cuevas

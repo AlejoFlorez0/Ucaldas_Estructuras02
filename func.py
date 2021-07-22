@@ -97,13 +97,9 @@ class Graph:
 
     def AddCave(self, name):
         c = Cave(name)
-        entry = input("Desea colocar un id?: ")
-        if "s" in entry:
-            entry = input("Por favor escriba el id de la cueva: ")
-            self.Caves[c] = entry
-        else:
-            self.Caves[c] = None
+        self.Caves[c] = None
         return c
+
 
     def GetCave(self, name):
         for x in self.Caves:
@@ -224,9 +220,9 @@ class Graph:
             for y in x.links:
                 for z in x.links[y]:
                     for a in lista:
-                         print(f"Nombre y: {y.GetName()} Nombre x: {x.GetName()}  y {a}")
+                         #print(f"Nombre y: {y.GetName()} Nombre x: {x.GetName()}  y {a}")
                          if (z["Distancia"] < n and z["Estado"]) and (y.GetName() not in a and x.GetName() in a):
-                             print("Entró")
+                             #print("Entró")
                              n = z["Distancia"]
                              e = z
                              b = y
@@ -297,6 +293,11 @@ class Graph:
                     p = False
         return listaa
 
+    def PrintCaves(self):
+        for x in self.Caves:
+            print(f"Nombre de la cueva: {x.GetName()}, Id: {self.Caves[x]}, Enlaces de la cueva: {x.links}")
+            for y in x.links:
+                print()
 
 class Algorithms:
 
@@ -319,24 +320,24 @@ class Algorithms:
         print("----------- processing each connection of ", current_v.GetName(), " ------------------")
         # for each adjacent vertex from current vertice is necessary to check all values to get the minor and replace
         for v in current_v.links:
-            print("Before: ", v.GetName(), " [", v.getCosteValue(), " - ", v.getCosteVertex(), "]")
+            #print("Before: ", v.GetName(), " [", v.getCosteValue(), " - ", v.getCosteVertex(), "]")
             for y in current_v.links[v]:
                 weightInfo = y
                 self.link = weightInfo
             if (not v.getCosteVertex() or (v.getCosteValue() > (current_v.getCosteValue() + weightInfo["Distancia"]))):
                 v.setCosteInfo((current_v.getCosteValue() + weightInfo["Distancia"]), current_v)
-                print("Later: ", v.GetName(), " [", v.getCosteValue(), " - ", v.getCosteVertex().GetName(), "]")
+                #print("Later: ", v.GetName(), " [", v.getCosteValue(), " - ", v.getCosteVertex().GetName(), "]")
 
         # mark the current_v as visited to discard it for future coste evaluations
         current_v.setStatus(True)
-        print(f"Se cambio el status de {current_v.GetName()} a {current_v.getStatus()}")
+        #print(f"Se cambio el status de {current_v.GetName()} a {current_v.getStatus()}")
         # Now, it's necessary to get the new curent_v with min value on the graph (no visited vertexes)
         current_v = self.getMinVertexCosteValue(current_v)
 
         # if exists the new vertex then process it, but else show a message with no route found
         if (current_v):
-            print("-----------------------------")
-            print("new current_v: ", current_v.GetName())
+            #print("-----------------------------")
+            #print("new current_v: ", current_v.GetName())
 
             if (current_v.GetName() == v_to):
                 pathway = self.getPathway(current_v, originalFrom)
@@ -373,15 +374,29 @@ class Algorithms:
 
 g = Graph()
 
-g.AddCave("A")
-g.AddCave("B")
-g.AddCave("C")
-g.AddCave("D")
-g.AddCave("E")
-g.AddCave("F")
-g.AddCave("G")
-g.AddCave("H")
-g.AddCave("I")
+g.AddCave("Tulia")
+g.AddCave("Junior")
+g.AddCave("Dora")
+g.AddCave("Lucho")
+g.AddCave("Profe")
+g.AddCave("Brian")
+g.AddCave("Bugs")
+g.AddCave("Donald")
+g.AddCave("Marlon")
+
+g.GetCave("Tulia").AddLinks(g.GetCave("Junior"), 15, True)
+g.GetCave("Marlon").AddLinks(g.GetCave("Donald"), 11, True)
+g.GetCave("Marlon").AddLinks(g.GetCave("Tulia"), 21, True)
+g.GetCave("Junior").AddLinks(g.GetCave("Dora"), 12, True)
+g.GetCave("Dora").AddLinks(g.GetCave("Lucho"), 20, True)
+g.GetCave("Dora").AddLinks(g.GetCave("Bugs"), 7, True)
+g.GetCave("Dora").AddLinks(g.GetCave("Donald"), 11, True)
+g.GetCave("Bugs").AddLinks(g.GetCave("Donald"), 16, True)
+g.GetCave("Lucho").AddLinks(g.GetCave("Tulia"), 12, True)
+g.GetCave("Lucho").AddLinks(g.GetCave("Bugs"), 6, True)
+g.GetCave("Profe").AddLinks(g.GetCave("Marlon"), 13, True)
+g.GetCave("Profe").AddLinks(g.GetCave("Bugs"), 9, True)
+
 
 m = False
 
@@ -397,8 +412,10 @@ while m == False:
         "\n6- Comprobar conexiones entrantes y salientes"
         "\n7- Comprobar cuevas innacesibles"
         "\n8- Cambiar Dirección"
-        "\n9- Recorrido Minimo"
+        "\n9- Recorrido Minimo - Dijkstra"
         "\n10- Pozos"
+        "\n11- Boruvka"
+        "\n13- Imprimir Listas"
         "\n100- salir")
 
     n = int(input("SELECCIONE EL NUMERO DONDE SE ENCUENTRA LA OPCION: "))
@@ -476,9 +493,6 @@ while m == False:
 
         Algorithms(1, name, name2, g, {});
 
-    
-        
-
     elif n == 10:
         name = input("Ingrese nombre de la cueva: ")
 
@@ -511,7 +525,7 @@ while m == False:
            listaBoruvka.append(a)
         listab = (g.sacarListasBoruvka(listaBoruvka))
 
-        print(listab)
+        #print(listab)
         print("Lista de Boruvka: ", listaBoruvka)
         for P in listaBoruvka:
                 print(P[0].GetName(), P[1], P[2].GetName())
@@ -539,6 +553,10 @@ while m == False:
         lista3 = g.kruskal2(lista, lista2, [])
 
         print(lista3)
+
+    elif n==13:
+        g.PrintCaves()
+
 
     elif n == 100:
         m = True

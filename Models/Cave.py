@@ -42,6 +42,14 @@ class Cave:
         self.yPosition = yPosition
     
     # Obtiene el nombre
+    def getPeso(self):
+        return float(self.Peso)
+
+    # Settea la variable de nombre
+    def setPeso(self,Peso):
+        self.Peso = Peso
+    
+    # Obtiene el nombre
     def getYPosition(self):
         return float(self.yPosition)
 
@@ -50,10 +58,10 @@ class Cave:
         return self.links
 
     # Agregará un nuevo enlace entre cuevas
-    def setLinks(self, selectedLinks):
+    def setLinks(self, selectedLinks,stateChec):
         self.links = []
         for link in selectedLinks:
-            self.links.append({"Cave":link,"state":True})
+            self.links.append({"Cave":link,"state":stateChec})
     
     # Agregará el valor de los enlaces desde json
     def setLinksFromJson(self,links):
@@ -70,8 +78,7 @@ class Cave:
 
     # Guardará un archivo del json
     def save(self):
-
-        jsonFile = {'id': self.name, 'name': self.name,'xPosition': self.xPosition,'yPosition': self.yPosition, 'links' : self.links}
+        jsonFile = {'id': self.name, 'name': self.name,'xPosition': self.xPosition,'yPosition': self.yPosition, 'links' : self.links,'peso':self.Peso}
 
         with open(self.cavePath+self.name+'.json','w') as json_file:
             json.dump(jsonFile, json_file)
@@ -81,7 +88,7 @@ class Cave:
     # Guardará un archivo del json
     def update(self):
 
-        jsonFile = {'id': self.name, 'name': self.name,'xPosition': self.xPosition,'yPosition': self.yPosition, 'links' : self.links}
+        jsonFile = {'id': self.name, 'name': self.name,'xPosition': self.xPosition,'yPosition': self.yPosition, 'links' : self.links,'Peso':self.Peso}
 
         with open(self.cavePath+self.name+'.json','w') as json_file:
             json.dump(jsonFile, json_file)
@@ -97,6 +104,7 @@ class Cave:
         self.setXPosition(data['xPosition'])
         self.setYPosition(data['yPosition'])
         self.setLinksFromJson(data['links'])
+        self.setPeso(data['peso'])
         
         # Closing file
         file.close()
